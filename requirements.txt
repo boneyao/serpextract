@@ -5,3 +5,4 @@ pylru>=1.0.3
 tldextract>=1.2
 six
 chardet
+mock==1.0.1

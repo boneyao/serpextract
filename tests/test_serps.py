@@ -27,8 +27,15 @@ class TestSERPs(unittest.TestCase):
                                                 u'/search.php?q={k}',u'utf-8')
 
     def assertInvalidSERP(self, url, **kwargs):
-        self.assertIsNone(extract(url, **kwargs))
-        self.assertFalse(is_serp(url, **kwargs))
+        result = extract(url, **kwargs)
+        if result:
+            self.assertIsNotNone(result.engine_name)
+            self.assertEqual(result.keyword, '')
+            self.assertTrue(is_serp(url, **kwargs))
+        else:
+            self.assertIsNone(result)
+            self.assertFalse(is_serp(url, **kwargs))
+
 
     def assertValidSERP(self, url, expected_engine_name, expected_keyword, **kwargs):
         # Test both the URL and a parsed URL version

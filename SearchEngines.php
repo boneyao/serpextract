@@ -215,7 +215,7 @@ if (!isset($GLOBALS['Piwik_SearchEngines'])) {
         'm5.baidu.com'                    => array('Baidu', array('wd', 'word', 'kw'), 's?wd={k}', array('UTF-8', 'gb2312')),
         'pos.baidu.com'                    => array('Baidu', array('wd', 'word', 'kw'), 's?wd={k}', array('UTF-8', 'gb2312')),
         'www.baidu.co.th'                => array('Baidu'),
-        'zhidao.baidu.com'               => array('Baidu'),
+        'zhidao.baidu.com'               => array('Baidu', array('wd', 'word', 'kw')),
         'tieba.baidu.com'                => array('Baidu'),
         'news.baidu.com'                 => array('Baidu'),
         'web.gougou.com'                 => array('Baidu', 'search', 'search?search={k}'), // uses baidu search
@@ -854,6 +854,7 @@ if (!isset($GLOBALS['Piwik_SearchEngines'])) {
         'www.skynet.be'                  => array('Skynet', 'q', 'services/recherche/google?q={k}'),
 
         // sm.cn
+        '{}.sm.cn'                        => array('sm', 'q', 's?q={k}'),
         'm.sm.cn'                        => array('sm', 'q', 's?q={k}'),
         '{}.m.sm.cn'                     => array('sm', 'q', 's?q={k}'),
         'so.m.sm.cn'                     => array('sm', 'q', 's?q={k}'),

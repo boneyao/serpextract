@@ -220,6 +220,9 @@ def _get_piwik_engines():
 
 
 _get_lossy_domain_regex = None
+wildcard_engines = None # {}.google.com, ...
+base_domain_engines = None # google.com, yahoo.com, ...
+
 def _get_lossy_domain(domain):
     """
     A lossy version of a domain/host to use as lookup in the ``_engines``
@@ -228,10 +231,17 @@ def _get_lossy_domain(domain):
     :param domain: A string that is the ``netloc`` portion of a URL.
     :type domain:  ``bytes``
     """
-    global _domain_cache, _get_lossy_domain_regex
+    global _domain_cache, _get_lossy_domain_regex, wildcard_engines, base_domain_engines
 
     if domain in _domain_cache:
         return _domain_cache[domain]
+    _engines = _get_piwik_engines()
+
+    if not wildcard_engines:
+       wildcard_engines = [i for i in _engines.keys() if '{}' in i]
+
+    if not base_domain_engines:
+       base_domain_engines = [i for i in _engines.keys() if len(i.split('.')) == 2]
 
     if not _get_lossy_domain_regex:
         codes = '|'.join(_country_codes)
@@ -248,8 +258,21 @@ def _get_lossy_domain(domain):
     output = u'%s%s%s' % ('{}.' if res['ccsub'] else '',
                           res['domain'],
                           '.{}' if res['tldcc'] else res['tld'] or '')
-    _domain_cache[domain] = output  # Add to LRU cache
-    return output
+
+    if output in _engines:
+        return output
+
+    # ffff.abc.com =  {}.abc.com
+    # fff.abc.com.ok = {}.abc.{}
+    for i in wildcard_engines:
+        j = i.replace('.', '\.').replace('{}', '.*?')
+        if re.compile(j).match(output):
+            return i
+
+    for i in base_domain_engines:
+        if output.endswith(i):
+            return i
+    return domain
 
 
 class ExtractResult(object):
@@ -469,8 +492,8 @@ class SearchEngineParser(object):
                 elif keyword is None and engine_name == 'Yahoo!' and \
                      url_parts.netloc.lower() == 'r.search.yahoo.com':
                     keyword = ''
-        if keyword is not None:
-            return ExtractResult(engine_name, keyword, self)
+
+        return ExtractResult(engine_name, keyword or '', self)
 
     def __repr__(self):
         repr_fmt = ("SearchEngineParser(engine_name={!r}, "
